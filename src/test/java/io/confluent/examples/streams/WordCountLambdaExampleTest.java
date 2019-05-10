@@ -36,10 +36,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Stream processing unit test of {@link WordCountLambdaExample}, using TopologyTestDriver.
  *
  * See {@link WordCountLambdaExample} for further documentation.
- *
- * See {@link WordCountLambdaIntegrationTest} for the End-to-end integration test using an embedded Kafkacluster.
- *
- * Note: This example uses lambda expressions and thus works with Java 8+ only.
  */
 public class WordCountLambdaExampleTest {
 
@@ -85,7 +81,6 @@ public class WordCountLambdaExampleTest {
 
   /**
    *  Test Word count of sentence list.
-   *  Test logic copied from {@link WordCountLambdaIntegrationTest}
    */
   @Test
   public void shouldCountWords() {

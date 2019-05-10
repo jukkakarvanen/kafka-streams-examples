@@ -34,8 +34,8 @@ import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.kstream.Windowed;
 
 import java.io.InputStream;
+import java.time.Duration;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Demonstrates how to perform a join between a KStream and a KTable, i.e. an example of a stateful
@@ -75,7 +75,7 @@ import java.util.concurrent.TimeUnit;
  * Once packaged you can then run:
  * <pre>
  * {@code
- * $ java -cp target/kafka-streams-examples-5.0.0-SNAPSHOT-standalone.jar io.confluent.examples.streams.PageViewRegionLambdaExample
+ * $ java -cp target/kafka-streams-examples-5.2.1-standalone.jar io.confluent.examples.streams.PageViewRegionLambdaExample
  * }
  * </pre>
  * 4) Write some input data to the source topics (e.g. via {@link PageViewRegionExampleDriver}).
@@ -85,7 +85,7 @@ import java.util.concurrent.TimeUnit;
  * {@code
  * # Here: Write input data using the example driver. Once the driver has stopped generating data,
  * # you can terminate it via `Ctrl-C`.
- * $ java -cp target/kafka-streams-examples-5.0.0-SNAPSHOT-standalone.jar io.confluent.examples.streams.PageViewRegionExampleDriver
+ * $ java -cp target/kafka-streams-examples-5.2.1-standalone.jar io.confluent.examples.streams.PageViewRegionExampleDriver
  * }
  * </pre>
  * 5) Inspect the resulting data in the output topic, e.g. via {@code kafka-console-consumer}.
@@ -180,7 +180,7 @@ public class PageViewRegionLambdaExample {
       .map((user, viewRegion) -> new KeyValue<>(viewRegion.get("region").toString(), viewRegion))
       // count views by region, using hopping windows of size 5 minutes that advance every 1 minute
       .groupByKey() // no need to specify explicit serdes because the resulting key and value types match our default serde settings
-      .windowedBy(TimeWindows.of(TimeUnit.MINUTES.toMillis(5)).advanceBy(TimeUnit.MINUTES.toMillis(1)))
+      .windowedBy(TimeWindows.of(Duration.ofMinutes(5)).advanceBy(Duration.ofMinutes(1)))
       .count();
 
     // Note: The following operations would NOT be needed for the actual pageview-by-region

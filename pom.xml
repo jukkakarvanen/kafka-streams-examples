@@ -7,7 +7,7 @@
     <parent>
         <groupId>io.confluent</groupId>
         <artifactId>rest-utils-parent</artifactId>
-        <version>5.2.0</version>
+        <version>5.2.1</version>
     </parent>
 
     <artifactId>kafka-streams-examples</artifactId>
@@ -54,7 +54,7 @@
         <docker.skip-build>false</docker.skip-build>
         <docker.skip-test>false</docker.skip-test>
         <java.version>1.8</java.version>
-        <licenses.version>5.2.0</licenses.version>
+        <licenses.version>5.2.1</licenses.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <scala.version>${kafka.scala.version}.7</scala.version>
         <scalatest.version>3.0.5</scalatest.version>
@@ -90,6 +90,12 @@
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-streams-scala_${kafka.scala.version}</artifactId>
             <version>${kafka.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-streams-test-utils</artifactId>
+            <version>${kafka.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.avro</groupId>
@@ -461,7 +467,7 @@
                     <dependency>
                         <groupId>com.puppycrawl.tools</groupId>
                         <artifactId>checkstyle</artifactId>
-                        <version>8.12</version> <!-- bumping to latest checkstyle version -->
+                        <version>8.18</version>
                     </dependency>
                 </dependencies>
                 <executions>

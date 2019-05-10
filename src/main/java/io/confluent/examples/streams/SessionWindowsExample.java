@@ -32,10 +32,10 @@ import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.SessionWindows;
 import org.apache.kafka.streams.state.SessionStore;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Demonstrates counting user activity (play-events) into Session Windows
@@ -68,7 +68,7 @@ import java.util.concurrent.TimeUnit;
  * Once packaged you can then run:
  * <pre>
  * {@code
- * $ java -cp target/kafka-streams-examples-5.0.0-SNAPSHOT-standalone.jar io.confluent.examples.streams.SessionWindowsExample
+ * $ java -cp target/kafka-streams-examples-5.2.1-standalone.jar io.confluent.examples.streams.SessionWindowsExample
  * }
  * </pre>
  * 4) Write some input data to the source topics (e.g. via {@link SessionWindowsExampleDriver}). The
@@ -78,7 +78,7 @@ import java.util.concurrent.TimeUnit;
  * {@code
  * # Here: Write input data using the example driver. The driver will also consume, and print, the data from the output
  * topic. The driver will stop when it has received all output records
- * $ java -cp target/kafka-streams-examples-5.0.0-SNAPSHOT-standalone.jar io.confluent.examples.streams.SessionWindowsExampleDriver
+ * $ java -cp target/kafka-streams-examples-5.2.1-standalone.jar io.confluent.examples.streams.SessionWindowsExampleDriver
  * }
  * </pre>
  * You should see output data similar to:
@@ -106,7 +106,7 @@ import java.util.concurrent.TimeUnit;
 public class SessionWindowsExample {
 
   static final String PLAY_EVENTS = "play-events";
-  static final Long INACTIVITY_GAP = TimeUnit.MINUTES.toMillis(30);
+  static final Duration INACTIVITY_GAP = Duration.ofMinutes(30);
   static final String PLAY_EVENTS_PER_SESSION = "play-events-per-session";
 
   public static void main(final String[] args) {
