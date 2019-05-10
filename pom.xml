@@ -215,6 +215,13 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <!-- This is needed until KIP-456 included to kafka-streams-test-utils -->
+            <groupId>com.github.jukkakarvanen</groupId>
+            <artifactId>kafka-streams-test-topics</artifactId>
+            <version>0.0.1-beta1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
             <version>${kafka.version}</version>

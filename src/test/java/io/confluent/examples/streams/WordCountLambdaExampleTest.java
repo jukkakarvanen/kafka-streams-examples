@@ -112,7 +112,7 @@ public class WordCountLambdaExampleTest {
 
     inputTopic.pipeValueList(inputValues);
 
-    final Map<String, Long> actualWordCounts = outputTopic.readRecordsToMap();
+    final Map<String, Long> actualWordCounts = outputTopic.readKeyValuesToMap();
     assertThat(actualWordCounts).containsAllEntriesOf(expectedWordCounts).hasSameSizeAs(expectedWordCounts);
   }
 
