@@ -16,10 +16,11 @@ package io.confluent.examples.streams;
 
 import com.github.jukkakarvanen.kafka.streams.test.TestInputTopic;
 import com.github.jukkakarvanen.kafka.streams.test.TestOutputTopic;
+import com.github.jukkakarvanen.kafka.streams.test.TopologyTestDriver;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
-import org.apache.kafka.streams.TopologyTestDriver;
 import org.apache.kafka.streams.test.OutputVerifier;
 import org.junit.After;
 import org.junit.Before;
@@ -49,8 +50,8 @@ public class WordCountLambdaExampleTest {
     //Create Actual Stream Processing pipeline
     WordCountLambdaExample.createWordCountStream(builder);
     testDriver = new TopologyTestDriver(builder.build(), WordCountLambdaExample.getStreamsConfiguration("localhost:9092"));
-    inputTopic = new TestInputTopic<String, String>(testDriver, WordCountLambdaExample.inputTopic, new Serdes.StringSerde(), new Serdes.StringSerde());
-    outputTopic = new TestOutputTopic<String, Long>(testDriver, WordCountLambdaExample.outputTopic, new Serdes.StringSerde(), new Serdes.LongSerde());
+    inputTopic = testDriver.createInputTopic(WordCountLambdaExample.inputTopic, new Serdes.StringSerde(), new Serdes.StringSerde());
+    outputTopic = testDriver.createOutputTopic(WordCountLambdaExample.outputTopic, new Serdes.StringSerde(), new Serdes.LongSerde());
   }
 
   @After
@@ -73,10 +74,9 @@ public class WordCountLambdaExampleTest {
     //Feed word "Hello" to inputTopic and no kafka key, timestamp is irrelevant in this case
     inputTopic.pipeInput("Hello");
     //Read and validate output
-    final ProducerRecord<String, Long> output = outputTopic.readRecord();
-    OutputVerifier.compareKeyValue(output, "hello", 1L);
+    assertThat(outputTopic.readKeyValue()).isEqualTo(new KeyValue<>("hello", 1L));
     //No more output in topic
-    assertThat(outputTopic.readRecord()).isNull();
+    assertThat(outputTopic.isEmpty()).isTrue();
   }
 
   /**
