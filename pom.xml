@@ -221,10 +221,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <!-- This is needed until KIP-470 included to kafka-streams-test-utils -->
+            <!-- This is needed until KIP-470 included to kafka-streams-test-utils with Kafka 2.4.0-->
             <groupId>com.github.jukkakarvanen</groupId>
             <artifactId>kafka-streams-test-topics</artifactId>
-            <version>0.0.1-beta3</version>
+            <version>1.0.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
