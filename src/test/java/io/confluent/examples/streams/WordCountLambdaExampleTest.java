@@ -14,14 +14,13 @@
  */
 package io.confluent.examples.streams;
 
+import com.github.jukkakarvanen.kafka.streams.test.TestInputTopic;
+import com.github.jukkakarvanen.kafka.streams.test.TestOutputTopic;
+import com.github.jukkakarvanen.kafka.streams.test.TopologyTestDriver;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.serialization.LongDeserializer;
-import org.apache.kafka.common.serialization.StringDeserializer;
-import org.apache.kafka.common.serialization.StringSerializer;
+import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
-import org.apache.kafka.streams.TopologyTestDriver;
-import org.apache.kafka.streams.test.ConsumerRecordFactory;
 import org.apache.kafka.streams.test.OutputVerifier;
 import org.junit.After;
 import org.junit.Before;
@@ -31,7 +30,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,10 +41,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class WordCountLambdaExampleTest {
 
   private TopologyTestDriver testDriver;
-
-  private StringDeserializer stringDeserializer = new StringDeserializer();
-  private LongDeserializer longDeserializer = new LongDeserializer();
-  private ConsumerRecordFactory<String, String> recordFactory = new ConsumerRecordFactory<>(new StringSerializer(), new StringSerializer());
+  private TestInputTopic<String, String> inputTopic;
+  private TestOutputTopic<String, Long> outputTopic;
 
   @Before
   public void setup() {
@@ -54,6 +50,8 @@ public class WordCountLambdaExampleTest {
     //Create Actual Stream Processing pipeline
     WordCountLambdaExample.createWordCountStream(builder);
     testDriver = new TopologyTestDriver(builder.build(), WordCountLambdaExample.getStreamsConfiguration("localhost:9092"));
+    inputTopic = testDriver.createInputTopic(WordCountLambdaExample.inputTopic, new Serdes.StringSerde(), new Serdes.StringSerde());
+    outputTopic = testDriver.createOutputTopic(WordCountLambdaExample.outputTopic, new Serdes.StringSerde(), new Serdes.LongSerde());
   }
 
   @After
@@ -69,42 +67,16 @@ public class WordCountLambdaExampleTest {
 
 
   /**
-   * Read one Record from output topic.
-   *
-   * @return ProducerRecord containing word as key and count as value
-   */
-  private ProducerRecord<String, Long> readOutput() {
-    return testDriver.readOutput(WordCountLambdaExample.outputTopic, stringDeserializer, longDeserializer);
-  }
-
-  /**
-   * Read counts from output to map.
-   * If the existing word is incremented, it can appear twice in output and is replaced in map
-   *
-   * @return Map of Word and counts
-   */
-  private Map<String, Long> getOutputList() {
-    final Map<String, Long> output = new HashMap<>();
-    ProducerRecord<String, Long> outputRow;
-    while((outputRow = readOutput()) != null) {
-      output.put(outputRow.key(), outputRow.value());
-    }
-    return output;
-  }
-
-  /**
    *  Simple test validating count of one word
    */
   @Test
   public void testOneWord() {
-    final String nullKey = null;
     //Feed word "Hello" to inputTopic and no kafka key, timestamp is irrelevant in this case
-    testDriver.pipeInput(recordFactory.create(WordCountLambdaExample.inputTopic, nullKey, "Hello", 1L));
+    inputTopic.pipeInput("Hello");
     //Read and validate output
-    final ProducerRecord<String, Long> output = readOutput();
-    OutputVerifier.compareKeyValue(output, "hello", 1L);
+    assertThat(outputTopic.readKeyValue()).isEqualTo(new KeyValue<>("hello", 1L));
     //No more output in topic
-    assertThat(readOutput()).isNull();
+    assertThat(outputTopic.isEmpty()).isTrue();
   }
 
   /**
@@ -133,11 +105,10 @@ public class WordCountLambdaExampleTest {
     expectedWordCounts.put("русские", 1L);
     expectedWordCounts.put("слова", 1L);
 
-    final List<KeyValue<String, String>> records = inputValues.stream().map(v -> new KeyValue<String, String>(null, v)).collect(Collectors.toList());
-    testDriver.pipeInput(recordFactory.create(WordCountLambdaExample.inputTopic, records, 1L, 100L));
+    inputTopic.pipeValueList(inputValues);
 
-    final Map<String, Long> actualWordCounts = getOutputList();
-    assertThat(actualWordCounts).containsAllEntriesOf(expectedWordCounts);
+    final Map<String, Long> actualWordCounts = outputTopic.readKeyValuesToMap();
+    assertThat(actualWordCounts).containsAllEntriesOf(expectedWordCounts).hasSameSizeAs(expectedWordCounts);
   }
 
 }
